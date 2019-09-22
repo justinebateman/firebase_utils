@@ -7,10 +7,16 @@ Python Utility library for the [Google Firebase Admin SDK](https://firebase.goog
 First install and setup the Admin SDK
 
 ```
-pip install --user firebase-admin
+pip install firebase-admin
 ```
 
 Follow [these](https://firebase.google.com/docs/admin/setup) instructions to set up the GOOGLE_APPLICATION_CREDENTIALS environment variable 
+
+Install these dependencies
+
+```
+pip install multipledispatch
+```
 
 To install firebase_utils as a module for usage anywhere on your machine:
 - Clone this repo

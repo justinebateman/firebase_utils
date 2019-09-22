@@ -2,14 +2,28 @@
 
 import firebase_admin, sys
 from firebase_admin import messaging
+from . import firebase_db
+import datetime
 
-def send_firebase(the_title, the_body):
+class Notification:
+    title = ""
+    body = 0
+    category = ""
+    date_time = datetime.datetime.now()
+
+    def __init__(self, title, body, category, date_time):
+        self.title = title
+        self.body = body
+        self.category = category
+        self.date_time = date_time
+
+def send(notification: Notification):
     condition = "'all' in topics"
 
     message = messaging.Message(
         notification=messaging.Notification(
-            title='%s' % (the_title),
-            body='%s' % (the_body),
+            title='%s' % (notification.title),
+            body='%s' % (notification.body),
         ),
         condition=condition,
     )
@@ -19,3 +33,17 @@ def send_firebase(the_title, the_body):
     response = messaging.send(message)
     # Response is a message ID string.
     print('Successfully sent message:', response)
+
+def send_and_save(notification: Notification):
+    send(notification)
+
+    data = {
+        u'title': u'%s' % notification.title,
+        u'body': u'%s' % notification.body,
+        u'category': u'%s' % notification.category,
+        u'date_time': datetime.datetime.now()
+    }
+    firebase_db.write('notifications', data)
+
+
+

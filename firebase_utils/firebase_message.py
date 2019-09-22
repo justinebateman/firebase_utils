@@ -4,6 +4,7 @@ import firebase_admin, sys
 from firebase_admin import messaging
 from . import firebase_db
 import datetime
+from multipledispatch import dispatch
 
 class Notification:
     title = ""
@@ -17,23 +18,34 @@ class Notification:
         self.category = category
         self.date_time = date_time
 
-def send(notification: Notification):
-    condition = "'all' in topics"
+@dispatch(str, str, str)
+def send(the_title, the_body, topic):
+    # send the message only to devices subscribed to this topic
+    condition = "'%s' in topics" % topic
 
     message = messaging.Message(
         notification=messaging.Notification(
-            title='%s' % (notification.title),
-            body='%s' % (notification.body),
+            title='%s' % (the_title),
+            body='%s' % (the_body),
         ),
         condition=condition,
     )
 
-    # Send a message to devices subscribed to the combination of topics
-    # specified by the provided condition.
+    # Send a message to devices subscribed to the topic
     response = messaging.send(message)
-    # Response is a message ID string.
     print('Successfully sent message:', response)
 
+@dispatch(str, str)
+def send(the_title, the_body):
+    # you must have a topic defined in your Firebase console called "all"
+    # your device must be subscribed to the topic "all"
+    send(the_title, the_body, 'all')
+
+@dispatch(Notification)
+def send(notification: Notification):
+    send(notification.title, notification.body)
+
+# send a push notification and store the contents in a collection called 'notifications'
 def send_and_save(notification: Notification):
     send(notification)
 
